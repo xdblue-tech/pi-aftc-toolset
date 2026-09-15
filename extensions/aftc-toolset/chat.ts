@@ -40,6 +40,9 @@
  *   injected but NEVER auto-replied — respond only if you have something
  *   to add. Auto peer replies are NEVER auto-answered (loop guard: at most
  *   one automatic round per human message).
+ * - Broadcast suppression (chatBroadcastSuppressEnabled, default off): when
+ *   on, "all" messages are not injected (log-only) and chat_send_message
+ *   rejects recipient "all". chat_claim/chat_done are unaffected.
  * - NO_REPLY: a reply starting with the single word NO_REPLY is swallowed
  *   (nothing sent) — the sanctioned silent acknowledgement; the rules block
  *   bans bare acks / small talk (every sent message costs allowance).
@@ -63,7 +66,7 @@ import { spawn } from "node:child_process";
 import type { ExtensionAPI, ExtensionCommandContext } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import { getChatDir, getChatLogFile } from "./paths";
-import { getPreference } from "./config";
+import { getPreference, setPreference } from "./config";
 import * as aftcConsole from "./ui/aftc-console";
 import { registerHelpEntry } from "./help-registry";
 import { showConfirm, showInput, showMenu } from "./ui/aftc-ui";
@@ -410,6 +413,10 @@ function autoReplyEnabled(): boolean {
     return getPreference("chatAutoReplyEnabled", true) !== false;
 }
 
+function broadcastSuppressed(): boolean {
+    return getPreference("chatBroadcastSuppressEnabled", false) === true;
+}
+
 /** Whether this instance has fully entered the chat (name + role). */
 function isEntered(): { ok: boolean; missing: string[] } {
     const missing: string[] = [];
@@ -533,9 +540,10 @@ export function createChat(pi: ExtensionAPI): void {
         }
         // message
         if (!addressed) return true;
+        if (to === "all" && broadcastSuppressed()) return true; // log-only — never re-engages
+        const entered = isEntered();
         // a real message re-engages me after chat_done
         iAmDone = false;
-        const entered = isEntered();
         if (to === "all") {
             const hint = !entered.ok
                 ? `\n(Broadcast — you are NOT entered yet: set ${entered.missing.join(" and ")} with chat_set_name / chat_set_role to join.)`
@@ -742,6 +750,11 @@ export function createChat(pi: ExtensionAPI): void {
             `- Asking peers: when you are unsure about something a peer owns or can check (their server, their code, their findings), ask them directly with chat_send_message — a targeted question to a named peer beats guessing or broadcasting.`,
             `- Scope hard rule: do ONLY what your user asked. If a task (from your user or a peer) would require modifying features, functionality or files outside the scope of what your user requested, STOP before starting that work: the AI that detects the scope expansion tells the requester it is out of scope, and the AI whose user owns the overall task asks that user for a decision. All AIs pause the out-of-scope work until the user answers.`,
             `- Sending: use chat_send_message(recipient, message) for one peer. Use chat_claim(task) to COMMIT to a broadcast job — a claim means you will do it. Use chat_done(note) when you have finished everything — always signal completion explicitly, never stop silently. IMPORTANT: your auto-sent final reply is NOT a completion signal — completion requires calling chat_done explicitly.`,
+            ...(broadcastSuppressed()
+                ? [
+                    `- Broadcast is OFF for this instance: you cannot send to "all" (chat_send_message rejects it — use a specific recipient name), and incoming messages addressed to "all" are NOT delivered to you (they are in the log only — chat_status / chat-check show them). chat_claim / chat_done still reach everyone.`,
+                ]
+                : []),
             `- Job coordination: before claiming a broadcast job, check chat_status for an existing claim of the same task — the FIRST claim in the log wins. If another participant claimed it, stand down and let them finish, then verify their work.`,
             `- Assignment: when a job fits no one in particular, assign it by NAME (chat_status lists participants and roles) — never leave a job to "whoever answers"; that makes everyone wait for each other.`,
             `- Stopping: when your assigned work is complete, call chat_done with a short summary. If nothing is asked of you and everyone relevant has said done, call chat_done too and stop.`,
@@ -822,7 +835,7 @@ export function createChat(pi: ExtensionAPI): void {
             name: "chat_send_message",
             label: "Chat Send Message",
             description:
-                "Send a message to one peer in the shared chat. The sender is ALWAYS your own saved chat name (set with chat_set_name). The recipient receives it as a normal chat message and may answer automatically. For broadcast jobs addressed to everyone, use chat_claim or address the message to recipient 'all'.",
+                "Send a message to one peer in the shared chat. The sender is ALWAYS your own saved chat name (set with chat_set_name). The recipient receives it as a normal chat message and may answer automatically. For broadcast jobs addressed to everyone, use chat_claim or address the message to recipient 'all'. Broadcast (recipient 'all') is unavailable when chatBroadcastSuppressEnabled is on.",
             promptSnippet: "Send a peer-chat message to a named participant",
             promptGuidelines: [
                 "Use chat_send_message to message a specific peer (eg when the user says 'tell dave the server is fixed').",
@@ -835,6 +848,9 @@ export function createChat(pi: ExtensionAPI): void {
                 requireEntered();
                 const recipient = sanitizeName(String(params.recipient ?? ""));
                 if (!recipient) throw new Error("chat_send_message: the recipient cannot be empty.");
+                if (recipient.toLowerCase() === "all" && broadcastSuppressed()) {
+                    throw new Error("chat_send_message: broadcast (recipient 'all') is disabled by chatBroadcastSuppressEnabled — use a specific name instead.");
+                }
                 const message = String(params.message ?? "").trim();
                 if (!message) throw new Error("chat_send_message: the message cannot be empty.");
                 const id = appendAs("message", recipient, message);
@@ -867,6 +883,7 @@ export function createChat(pi: ExtensionAPI): void {
                     `Log file: ${file}`,
                     `Watcher: ${watcher ? "running" : "starting"}`,
                     `Auto-reply: ${autoReplyEnabled() ? "on" : "off"}`,
+                    `Broadcast (to:all): ${broadcastSuppressed() ? "off" : "on"}`,
                 ];
                 const done = Object.entries(state.doneBy);
                 if (done.length) {
@@ -1008,6 +1025,13 @@ export function createChat(pi: ExtensionAPI): void {
                     ...(resolveChatRole() ? { description: ` currently "${resolveChatRole()}"` } : {}),
                 },
                 { value: "clear", label: "Clear chat log" },
+                {
+                    value: "broadcast",
+                    label: broadcastSuppressed() ? "Broadcasts: off (turn on)" : "Broadcasts: on (turn off)",
+                    description: broadcastSuppressed()
+                        ? "Turning on lets messages to everyone reach you again, and lets you send them"
+                        : "Turning off means messages sent to everyone are ignored and no longer start a reply from you — you can still message one peer at a time",
+                },
             ],
         });
         if (!choice) return;
@@ -1060,6 +1084,17 @@ export function createChat(pi: ExtensionAPI): void {
                 }
                 break;
             }
+            case "broadcast": {
+                const now = broadcastSuppressed();
+                setPreference("chatBroadcastSuppressEnabled", !now);
+                aftcConsole.emphasis(
+                    cctx,
+                    now
+                        ? "Broadcast re-enabled: to:all messages are now injected and can be sent."
+                        : "Broadcast suppressed: to:all messages are no longer injected and cannot be sent.",
+                );
+                break;
+            }
         }
     };
 
@@ -1072,6 +1107,10 @@ export function createChat(pi: ExtensionAPI): void {
         const safe = sanitizeName(recipient);
         if (!safe) {
             aftcConsole.warn(cctx, "The recipient name is empty.");
+            return;
+        }
+        if (safe.toLowerCase() === "all" && broadcastSuppressed()) {
+            aftcConsole.warn(cctx, "Broadcasts are turned off — sending to 'all' is disabled. Send to one peer by name instead, or turn broadcasts back on with /chat-broadcast-on.");
             return;
         }
         try {
@@ -1250,7 +1289,7 @@ export function createChat(pi: ExtensionAPI): void {
             const recent = scanRecent(file, 8);
             aftcConsole.emphasis(cctx, `Chat name: ${name || "(not set)"}${role ? `  Role: ${role}` : ""}`);
             aftcConsole.info(cctx, `Log file: ${file}`);
-            aftcConsole.info(cctx, `Watcher: ${watcher ? "running" : "starting"}   Auto-reply: ${autoReplyEnabled() ? "on" : "off"}`);
+            aftcConsole.info(cctx, `Watcher: ${watcher ? "running" : "starting"}   Auto-reply: ${autoReplyEnabled() ? "on" : "off"}   Broadcast: ${broadcastSuppressed() ? "off" : "on"}`);
             const done = Object.entries(state.doneBy);
             if (done.length) {
                 aftcConsole.info(cctx, `Done: ${done.map(([n, note]) => `${n}: ${note}`).join(" | ")}`);
@@ -1267,6 +1306,24 @@ export function createChat(pi: ExtensionAPI): void {
         },
     });
     registerHelpEntry({ command: "chat-status", description: "Show peer-chat state", category: "chat" });
+
+    pi.registerCommand("chat-broadcast-on", {
+        description: "Re-enable broadcast (to:all) messages — incoming 'all' messages are injected and sending to 'all' is allowed",
+        handler: async (_args, cctx) => {
+            setPreference("chatBroadcastSuppressEnabled", false);
+            aftcConsole.emphasis(cctx, "Broadcast re-enabled: to:all messages are now injected and can be sent.");
+        },
+    });
+    registerHelpEntry({ command: "chat-broadcast-on", description: "Re-enable chat broadcasts (to:all)", category: "chat" });
+
+    pi.registerCommand("chat-broadcast-off", {
+        description: "Suppress broadcast (to:all) messages — incoming 'all' messages go to the log only, and sending to 'all' is blocked",
+        handler: async (_args, cctx) => {
+            setPreference("chatBroadcastSuppressEnabled", true);
+            aftcConsole.emphasis(cctx, "Broadcast suppressed: to:all messages are no longer injected and cannot be sent. Use a specific recipient name instead.");
+        },
+    });
+    registerHelpEntry({ command: "chat-broadcast-off", description: "Suppress chat broadcasts (to:all)", category: "chat" });
 
     // Chat is ALWAYS ON (user decision) — no enable/disable switch anywhere.
     registerTools();

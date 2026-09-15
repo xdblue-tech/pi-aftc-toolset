@@ -75,6 +75,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
     runScriptEnabled: true,          // run_script tool (off = tool absent)
     backgroundTerminalsEnabled: false, // bg_* tools + /bt family (off by default)
     fileSearchEnabled: true,         // fd + rg search tools
+    chatBroadcastSuppressEnabled: false, // suppress broadcast (to:all) — blocks sending + incoming injection
     chatAutoReplyEnabled: true,      // peer-chat auto-reply
     debugLoggingEnabled: false,      // stdout diagnostic chatter gate
 };

@@ -152,6 +152,9 @@ export interface Preferences {
     backgroundTerminalsEnabled?: boolean;
     /** fd + rg file-search tools. On by default (like run_script). /file-search-on|off. */
     fileSearchEnabled?: boolean;
+    /** Peer chat: suppress broadcast (to:all) — blocks sending to "all"
+     *  and stops incoming broadcasts from being injected. Off by default. */
+    chatBroadcastSuppressEnabled?: boolean;
     /** Peer chat: auto-send the final reply back to the sender after an
      *  injected message. On by default (off = replies via chat_send_message). */
     chatAutoReplyEnabled?: boolean;
@@ -212,6 +215,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
     runScriptEnabled: true,
     backgroundTerminalsEnabled: false,
     fileSearchEnabled: true,
+    chatBroadcastSuppressEnabled: false,
     chatAutoReplyEnabled: true,
     debugLoggingEnabled: false,
 };

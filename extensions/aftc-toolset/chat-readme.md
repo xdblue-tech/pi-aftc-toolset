@@ -77,12 +77,27 @@ conversation:
   `<log>.rotated` written by `/chat-clear` / `chat_clear` marks the cut,
   so post-clear messages are delivered normally).
 
+## Broadcast (to:all) suppression
+
+- `chatBroadcastSuppressEnabled` (default **off**): when on, this instance
+  is taken out of the broadcast game in BOTH directions:
+  - incoming `to:all` records are NOT injected (they stay in the log — use
+    `chat_status` / `/chat-check` to read them), so a peer's broadcast can
+    never start a model turn here;
+  - `chat_send_message(recipient: "all")` throws, so this AI cannot
+    broadcast either (targeted messages to a named peer still work).
+- Toggle: `/chat-broadcast-on` / `/chat-broadcast-off`, or the
+  "Broadcast" item in the `/chat` menu (shows the current state). The live
+  state is also shown by `/chat-status`.
+- `chat_claim` / `chat_done` are UNAFFECTED — they are addressed to `all`
+  but are coordination metadata, not broadcasts.
+
 ## Coordination
 
 - A message addressed to **me** is auto-answered (the final reply is sent
   back, flagged `aftc_auto:1`; `chatAutoReplyEnabled`, default on).
   Messages to **all** are injected for everyone but NEVER auto-replied —
-  respond only if you have something to add.
+  respond only if you have something to add (unless suppressed, above).
 - **Loop guard:** auto-sent replies are NEVER auto-answered back (the
   record's `aftc_auto:1` flag means the receiving instance delivers it
   with an "(auto-reply)" tag but owes no reply), so two AIs can exchange
@@ -137,6 +152,8 @@ conversation:
 - `/chat-set-name <name>` / `/chat-set-role <role>` — set THIS window's
   identity (per-process, until the session ends; never touches other windows)
 - `/chat-clear` — clear/rotate the log (confirm)
+- `/chat-broadcast-on` / `/chat-broadcast-off` — re-enable / suppress
+  broadcast (`to:all`) for this instance
 - `/chat-check` — new messages since your last check + who's done
 - `/chat-status` — full state
 
@@ -153,6 +170,7 @@ layout; never pack the title straight onto the options).
 2. Set your chat name
 3. Set your role
 4. Clear chat log
+5. Broadcast: on/off toggle (shows current state + what turning it off means)
 
 ## Humans
 
