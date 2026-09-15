@@ -37,3 +37,11 @@ first; a seed failure aborts the enable). The enable confirm only
 appears when the live data dir is missing ("Unable to detect local sub
 agents data directory. Shall I create and seed?"); an existing folder
 enables silently.
+
+The `subagent` model tool is registered ONLY when the feature is
+enabled: the tool name is a global namespace in pi and another
+extension (eg `@teelicht/pi-superagents`) may also register
+"subagent" — registering unconditionally would make the whole
+toolset fail to load next to it. Enabling via `/007` therefore needs
+`/reload` for the tool to appear; after disabling, the stale tool
+still throws "feature is disabled" until the same reload.

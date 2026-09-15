@@ -192,15 +192,23 @@ export function createSubAgents(pi: ExtensionAPI, deps: SubAgentsFactoryDeps = {
     }
 
     // ── the subagent tool (foreground-only in v1) ────────────────────────────
-    // Agent roster for the tool prompt: deduped by name, precedence
-    // order (the first discovered copy of a name is the authoritative one).
-    const seenRosterNames = new Set<string>();
-    const roster = discoverSubAgentProfiles()
-        .filter((p) => (seenRosterNames.has(p.name) ? false : (seenRosterNames.add(p.name), true)))
-        .map((p) => `${p.name}: ${p.description}`)
-        .join("\n");
+    // Registered ONLY when the feature is enabled: the tool name is a global
+    // namespace in pi, and another extension (eg @teelicht/pi-superagents)
+    // may also register "subagent". Gating on the pref lets the rest of the
+    // toolset coexist with such extensions while 007 is off. The pref is read
+    // fresh from disk here (config rule: never cached) — enabling via /007
+    // needs /reload for the tool to appear; disabling still throws from
+    // execute() until the same reload.
+    if (getSubAgentPref("enabled", false)) {
+        // Agent roster for the tool prompt: deduped by name, precedence
+        // order (the first discovered copy of a name is the authoritative one).
+        const seenRosterNames = new Set<string>();
+        const roster = discoverSubAgentProfiles()
+            .filter((p) => (seenRosterNames.has(p.name) ? false : (seenRosterNames.add(p.name), true)))
+            .map((p) => `${p.name}: ${p.description}`)
+            .join("\n");
 
-    pi.registerTool({
+        pi.registerTool({
         name: "subagent",
         label: "Sub-Agent",
         description:
@@ -338,7 +346,8 @@ export function createSubAgents(pi: ExtensionAPI, deps: SubAgentsFactoryDeps = {
             const summary = `${agent} · ${id} · ${state}${elapsed ? ` · ${elapsed}` : ""}`;
             return new Text(theme.fg("accent", "subagent ") + theme.fg("dim", summary), 0, 0);
         },
-    });
+        });
+    }
 
     // ── commands + menus ──────────────────────────────────────────────────────
     registerSubAgentCommands(pi, {
