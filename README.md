@@ -449,13 +449,11 @@ bounded to 2 MB).
 
 ## **File Search**
 
-First-class file finding and content search. `fd` finds files/directories
-by name, extension, glob, type and depth; `rg` searches file contents with
-regex or literal text, smart-case, gitignore-aware. Both shell out to the
-Rust `fd` / `ripgrep` binaries (fast, accurate, cross-platform) - install
-them via your package manager and the tools just work (a missing binary
-gives a clear install hint). Toggle: `/file-search-on` / `/file-search-off`
-(default on). Every failed run lands in the report's Tool-errors section.
+Moved to the [pi-kitten](https://github.com/xdblue/pi-kitten) package:
+`extensions/file-search/` there owns the `fd` + `rg` tools and their
+`fileSearchEnabled` preference. The copy that used to live in this
+repository (`extensions/aftc-toolset/file-search/`) was removed to keep one
+source of truth. Install pi-kitten to get the tools back.
 
 ---
 
@@ -614,8 +612,6 @@ Run `/aftc-help` inside pi for the same list grouped by category.
 | `/aftc-resume-save` | Stop current work and write `./aftc-resume.md` (handoff file: goal, current state, knowledge learned, key files, next steps). An existing handoff is kept as a timestamped snapshot - nothing is overwritten. Then `/new` + `/aftc-resume` to continue in a fresh window |
 | `/aftc-resume` | Restore the saved knowledge: the model reads `./aftc-resume.md`, re-loads its codex resources (codex on) and key files, reads the project's docx docs and AGENTS.md, confirms it is up to speed, then waits for your direction |
 | `/copy-all` | Copy all user/assistant messages in the thread to the clipboard |
-| `/file-search-on` | Enable the fd + rg search tools (`/reload` to apply) |
-| `/file-search-off` | Disable the fd + rg search tools (`/reload` to apply) |
 
 ### Interrupt
 

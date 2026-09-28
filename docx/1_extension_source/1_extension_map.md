@@ -41,7 +41,7 @@ both). Leaf annotations live here; the root map annotates branches only.
 |  |- 1.5.16 Peer chat (chat.ts)
 |  |- 1.5.17 Background terminals (background-terminals/)
 |  |- 1.5.18 Copy all (copy-all.ts)
-|  \- 1.5.19 File search (file-search/)
+|  \- 1.5.19 File search (file-search/) (moved to pi-kitten)
 |- 1.6 SSH feature (ssh/)
 |  |- 1.6.1 Command & tool surface (ssh/index.ts)
 |  |- 1.6.2 Sessions & lifecycle (session.ts)
@@ -102,7 +102,7 @@ both). Leaf annotations live here; the root map annotates branches only.
 | 1.5.16 | Peer chat (/chat family) | surface | [1.5_feature_modules/1.5.16_chat.md](./1.5_feature_modules/1.5.16_chat.md) | done |
 | 1.5.17 | Background terminals | surface | [1.5_feature_modules/1.5.17_background_terminals.md](./1.5_feature_modules/1.5.17_background_terminals.md) | done |
 | 1.5.18 | Copy all (/copy-all) | | [1.5_feature_modules/1.5.18_copy_all.md](./1.5_feature_modules/1.5.18_copy_all.md) | done |
-| 1.5.19 | File search (fd + rg) | | [1.5_feature_modules/1.5.19_file_search.md](./1.5_feature_modules/1.5.19_file_search.md) | done |
+| 1.5.19 | File search (fd + rg) | | [1.5_feature_modules/1.5.19_file_search.md](./1.5_feature_modules/1.5.19_file_search.md) | moved to pi-kitten |
 | 1.6.1 | SSH command & tool surface | | [1.6_ssh/1.6.1_command_tool_surface.md](./1.6_ssh/1.6.1_command_tool_surface.md) | done |
 | 1.6.2 | Sessions & lifecycle | | [1.6_ssh/1.6.2_sessions.md](./1.6_ssh/1.6.2_sessions.md) | done |
 | 1.6.3 | Connection store | | [1.6_ssh/1.6.3_connection_store.md](./1.6_ssh/1.6.3_connection_store.md) | done |

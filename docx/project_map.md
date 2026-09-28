@@ -49,7 +49,7 @@ pi-aftc-toolset (pi extension package v1.20.2)
 |  |  |- 1.5.16 Peer chat (chat.ts)
 |  |  |- 1.5.17 Background terminals (background-terminals/)
 |  |  |- 1.5.18 Copy all (copy-all.ts)
-|  |  \- 1.5.19 File search (file-search/)
+|  |  \- 1.5.19 File search (file-search/) (moved to pi-kitten)
 |  |- 1.6 SSH feature (ssh/)                                       module
 |  |  |- 1.6.1 Command & tool surface (ssh/index.ts)
 |  |  |- 1.6.2 Sessions & lifecycle (session.ts)

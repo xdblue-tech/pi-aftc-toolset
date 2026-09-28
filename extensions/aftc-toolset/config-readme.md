@@ -74,7 +74,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
     aftcCodexAutoInsertAgentsEnabled: false, // allow the AI to auto-insert the codex load list into AGENTS.md (off by default)
     runScriptEnabled: true,          // run_script tool (off = tool absent)
     backgroundTerminalsEnabled: false, // bg_* tools + /bt family (off by default)
-    fileSearchEnabled: true,         // fd + rg search tools
+    // fileSearchEnabled moved to the pi-kitten package (extensions/file-search/)
     chatBroadcastSuppressEnabled: false, // suppress broadcast (to:all) — blocks sending + incoming injection
     chatAutoReplyEnabled: true,      // peer-chat auto-reply
     debugLoggingEnabled: false,      // stdout diagnostic chatter gate

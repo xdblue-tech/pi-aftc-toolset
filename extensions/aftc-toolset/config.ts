@@ -150,8 +150,6 @@ export interface Preferences {
     /** Background terminals: bg_start/bg_status/bg_list/bg_kill tools + the /bt
      *  command family. Off by default (new features default OFF). /bt-on|off. */
     backgroundTerminalsEnabled?: boolean;
-    /** fd + rg file-search tools. On by default (like run_script). /file-search-on|off. */
-    fileSearchEnabled?: boolean;
     /** Peer chat: suppress broadcast (to:all) — blocks sending to "all"
      *  and stops incoming broadcasts from being injected. Off by default. */
     chatBroadcastSuppressEnabled?: boolean;
@@ -214,7 +212,6 @@ export const DEFAULT_PREFERENCES: Preferences = {
     aftcCodexAutoInsertAgentsEnabled: false,
     runScriptEnabled: true,
     backgroundTerminalsEnabled: false,
-    fileSearchEnabled: true,
     chatBroadcastSuppressEnabled: false,
     chatAutoReplyEnabled: true,
     debugLoggingEnabled: false,

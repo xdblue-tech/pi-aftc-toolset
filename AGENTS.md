@@ -118,7 +118,7 @@ implementation is `ui/aftc-ui.ts` (all dialogs go through it). Read `docx/1_exte
 | Sub-agents (/007) | `docx/1_extension_source/1.9_subagents/1.9_subagents_documentation.md` |
 | Peer chat (/chat) | `docx/1_extension_source/1.5_feature_modules/1.5.16_chat.md` |
 | Background terminals (/bt) | `docx/1_extension_source/1.5_feature_modules/1.5.17_background_terminals.md` |
-| File search (fd + rg) | `docx/1_extension_source/1.5_feature_modules/1.5.19_file_search.md` |
+| File search (fd + rg) | moved to the pi-kitten package — see `docx/1_extension_source/1.5_feature_modules/1.5.19_file_search.md` |
 | Tool-error tracking (report Errors tab) | `docx/1_extension_source/1.4_footer_usage/1.4.5_usage_report.md` |
 | Keyboard shortcuts (add/change) | `extensions/aftc-toolset/keys-readme.md` |
 | Quick dir access (/qd) | `extensions/aftc-toolset/quick-open-dir-readme.md` |

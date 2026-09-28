@@ -90,7 +90,6 @@ import { getSubAgentPref } from "./subagents/subagent-config";
 import { createRunScript } from "./run-script";
 import { createBackgroundTerminals } from "./background-terminals/background-terminals";
 import { createCopyAll } from "./copy-all";
-import { createFileSearch } from "./file-search/file-search";
 import { createResume } from "./resume";
 import { createChat } from "./chat";
 import { migrateLegacyData } from "./paths";
@@ -180,7 +179,6 @@ export default function (pi: ExtensionAPI): void {
 	createRunScript(pi);
 	createBackgroundTerminals(pi);
 	createCopyAll(pi);
-	createFileSearch(pi);
 	createResume(pi);
 	createChat(pi);
 	// createProviders(pi); // disabled — see note at the import above

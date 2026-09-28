@@ -89,7 +89,7 @@ Host path base: `<dataDir>` = `%APPDATA%\pi-aftc-toolset\data` (override
 | run_script | — | `run_script`, on/off cmds | `runScriptEnabled` pref |
 | Background terminals | 1.5.17 widget + `/bt` menu | `bg_start`/`bg_status`/`bg_list`/`bg_kill`, `/bt` `/bt-on` `/bt-off` | in-memory only |
 | Copy all | — | `/copy-all` | — |
-| File search | — | `fd`, `rg`, `/file-search-on|off` | `fileSearchEnabled` pref |
+| File search | — | moved to the pi-kitten package (`extensions/file-search/`) | — |
 | Tool-error tracking | 1.4.5 Errors tab (tool-errors section) | — (event-driven) | `tool_errors` table (via 1.4.4) |
 
 ## 5. API consumer matrix
